@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+(() => {
+  /*
+   * If this page is already inside an iframe,
+   * do nothing. This prevents the iframe from
+   * triggering the Blob redirect again.
+   */
+  if (window.top !== window.self) {
+    return;
+  }
+
+  /*
+   * Create the iframe-wrapper page.
+   */
+  const wrapper = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>​</title>
+
+  <link
+    rel="icon"
+    href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnLz4="
+  >
+
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #frame {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <iframe
+    id="frame"
+    src="https://n3xn.vercel.app/"
+    allow="accelerometer; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; geolocation; gyroscope; microphone; payment; picture-in-picture; speaker-selection; usb; web-share; xr-spatial-tracking"
+    allowfullscreen
+    webkitallowfullscreen
+    mozallowfullscreen
+    referrerpolicy="no-referrer">
+  </iframe>
+
+</body>
+</html>`;
+
+  /*
+   * Make the wrapper into a Blob.
+   */
+  const blob = new Blob(
+    [wrapper],
+    {
+      type: "text/html"
+    }
+  );
+
+  /*
+   * Immediately replace the current page.
+   */
+  const blobURL =
+    URL.createObjectURL(blob);
+
+  window.location.replace(blobURL);
+})();
+</script>
+    <script>
+(() => {
+  let armed = true;
+
+  window.addEventListener("beforeunload", (event) => {
+    if (!armed) return;
+
+    event.preventDefault();
+    event.returnValue = "";
+  });
+
+  /*
+   * Optional: call this before an intentional
+   * navigation made by your own site.
+   */
+  window.disableCloseProtection = () => {
+    armed = false;
+  };
+})();
+</script>
+    <script src="/assets/scripts/home.js"></script>
+
+    <link rel="shortcut icon" id="tab-favicon" href="favicon.png" />
+    <title id="tab-title">Home</title>
+
+    <link rel="stylesheet" href="/assets/styles/main.css?v=1" />
+    <link rel="stylesheet" href="/assets/styles/themes/default.css?v=1" />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+
+    <script
+      src="https://kit.fontawesome.com/1237c86ba0.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <style>
+      /* ============================
+         HTML EDITOR
+         ============================ */
+
+      #html-editor-container {
+        display: none;
+        position: relative;
+
+        width: min(900px, 90vw);
+        height: 70vh;
+        min-height: 450px;
+
+        margin: 0 auto;
+
+        border-radius: 12px;
+        overflow: hidden;
+
+        background: #1e1e1e;
+        box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+      }
+
+      #html-editor {
+        width: 100%;
+        height: 100%;
+      }
+
+      /*
+       * Run button is NOT pinned to the editor.
+       *
+       * It sits at the right-center of the editor
+       * area and stays vertically centered.
+       */
+      #html-run {
+        position: fixed;
+
+        right: 24px;
+        top: 50%;
+
+        transform: translateY(-50%);
+
+        z-index: 1000;
+
+        border: 0;
+        border-radius: 8px;
+
+        padding: 10px 18px;
+
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+
+        cursor: pointer;
+
+        background: #ffffff;
+        color: #111111;
+
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+        transition:
+          transform 0.12s ease,
+          opacity 0.12s ease;
+      }
+
+      #html-run:hover {
+        transform: translateY(-50%) scale(1.03);
+      }
+
+      #html-run:active {
+        transform: translateY(-50%) scale(0.98);
+        opacity: 0.8;
+      }
+
+      /*
+       * Give Monaco enough room to scroll normally.
+       */
+      #html-editor .monaco-editor {
+        padding-bottom: 10px;
+      }
+
+      /* ============================
+         ATTRIBUTION
+         ============================ */
+
+      .interstellar-subtitle {
+  width: min(700px, 90vw);
+  margin: -8px auto 16px;
+
+  text-align: center;
+
+  font-size: 13px;
+  line-height: 1.5;
+
+  color: #ffffff;
+  font-style: italic;
+  opacity: 1;
+}
+
+      /* ============================
+         TEXT SHORTCUTS
+         ============================ */
+
+      .text-shortcut {
+        background-image: none !important;
+
+        background-size: contain !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        text-align: center;
+      }
+
+      /*
+       * Slightly move only Seraph and MacVG's
+       * displayed text toward the left.
+       */
+      #macvg {
+        text-indent: -4px;
+      }
+
+      #seraph {
+        text-indent: -4px;
+      }
+
+      @media (max-width: 600px) {
+        #html-editor-container {
+          width: 94vw;
+          height: 65vh;
+          min-height: 380px;
+        }
+
+        .interstellar-subtitle {
+          font-size: 12px;
+        }
+
+        #html-run {
+  position: fixed;
+
+  right: 20px;
+  bottom: 20px;
+
+  z-index: 1000;
+
+  border: 0;
+  border-radius: 8px;
+
+  padding: 10px 18px;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  background: #ffffff;
+  color: #111111;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+  transition:
+    transform 0.12s ease,
+    opacity 0.12s ease;
+}
+      }
+    </style>
+  </head>
+
+  <body class="center">
+
+    <!-- ============================
+         NAVIGATION BAR
+         ============================ -->
+
+    <div class="fixed-nav-bar">
+
+      <div class="fixed-nav-bar-container">
+        <a class="icon" href="/./">
+          <img
+            alt="nav"
+            id="INImg"
+            src="/assets/media/favicon/main.png"
+          />
+        </a>
+      </div>
+
+      <div class="fixed-nav-bar-right">
+
+        <a class="navbar-link" href="/./-">
+          <i class="fa-solid fa-gamepad navbar-icon"></i>
+          Games
+        </a>
+
+        <a class="navbar-link" href="/./~">
+          <span class="material-symbols-outlined weird-icon">
+            apps
+          </span>
+          Apps
+        </a>
+
+        <a class="navbar-link" href="/./0">
+          <i class="fa-solid fa-table navbar-icon"></i>
+          Tabs
+        </a>
+
+        <a class="navbar-link" href="/./!">
+          <i class="fa-solid fa-gear navbar-icon settings-icon"></i>
+          Settings
+        </a>
+
+      </div>
+    </div>
+
+    <!-- ============================
+         MAIN PAGE
+         ============================ -->
+
+    <div id="particles-js">
+
+      <script
+        rel="preload"
+        src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"
+      ></script>
+
+      <div class="main">
+
+        <h1 class="title">
+          Interstellar v2
+        </h1>
+
+        <div class="interstellar-subtitle">
+          this Unblocker Brought to you by the smartest chud in GHS: Xclounkit234X<br />
+          i got bored, ok. btw while ur on this, blocksi cannot do anything, and prevents from showing up on search history.
+        </div>
+
+        <!-- ============================
+             NORMAL URL / SEARCH MODE
+             ============================ -->
+
+        <div
+          class="search-container"
+          id="url-mode"
+        >
+
+          <form
+            id="fs"
+            method="POST"
+          >
+
+            <input
+              id="is"
+              class="main-search"
+              placeholder="Search with Google or enter address"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+            />
+
+          </form>
+
+        </div>
+
+        <!-- ============================
+             HTML / MONACO MODE
+             ============================ -->
+
+        <div id="html-editor-container">
+
+          <div id="html-editor"></div>
+
+          <button
+            id="html-run"
+            type="button"
+          >
+            Run
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ============================
+           FEATURED SHORTCUTS
+           ============================ -->
+
+      <div class="footer">
+
+        <div class="featured-text">
+
+          <div class="featured-text-box">
+            <h1>Featured</h1>
+          </div>
+
+        </div>
+
+        <div class="featured">
+
+          <div class="shortcut-container">
+
+            <!-- GeForce Now -->
+
+            <input
+              onclick="blank('https://play.geforcenow.com');"
+              class="shortcut"
+              id="geforce"
+              title="GeForce Now"
+              type="button"
+            />
+
+            <!-- Roblox -->
+
+            <input
+              onclick="blank('https://now.gg/play/roblox-corporation/5349/roblox');"
+              class="shortcut"
+              id="roblox"
+              title="Roblox"
+              type="button"
+            />
+
+            <!-- Discord -->
+
+            <input
+              onclick="blank('https://canary.discord.com');"
+              class="shortcut"
+              id="discord"
+              title="Discord"
+              type="button"
+            />
+
+            <!-- Eaglercraft -->
+
+            <input
+              onclick="blank('https://kbsigmaboy67.github.io/mc/1.8.html');"
+              class="shortcut"
+              id="eagler"
+              title="Eaglercraft"
+              type="button"
+            />
+
+            <!-- YouTube -->
+
+            <input
+              onclick="blank('https://youtube.com/');"
+              class="shortcut"
+              id="youtube"
+              title="YouTube"
+              type="button"
+            />
+
+            <!-- TikTok -->
+
+            <input
+              onclick="blank('https://tiktok.com');"
+              class="shortcut"
+              id="tiktok"
+              title="TikTok"
+              type="button"
+            />
+
+            <!-- Gemini -->
+
+            <input
+              onclick="blank('https://gemini.google.com/');"
+              class="shortcut"
+              id="gemini"
+              title="Gemini"
+              type="button"
+              style="
+                background-image:url('/x/www.gstatic.com/lamda/images/gemini_sparkle_aurora_33f86dc0c0257da337c63.svg');
+                background-size:contain;
+                background-position:center;
+                background-repeat:no-repeat;
+              "
+            />
+
+            <!-- MacVG -->
+
+            <input
+              onclick="blank('https://kbsigmaboy67.github.io/macvg/');"
+              class="shortcut text-shortcut"
+              id="macvg"
+              title="MacVG"
+              type="button"
+              value="MacVG"
+            />
+
+            <!-- Seraph -->
+
+            <input
+              onclick="blank('johnwick1113.github.io/OPENTHENOOR/index.html');"
+              class="shortcut text-shortcut"
+              id="seraph"
+              title="Seraph"
+              type="button"
+              value="Seraph"
+            />
+
+            <!-- Windows 11 -->
+
+            <input
+              onclick="blank('https://johnwick1113.github.io/OPENTHENOOR/apps/windows11');"
+              class="shortcut"
+              id="windows11"
+              title="Windows 11"
+              type="button"
+              style="
+                background-image:url('https://upload.wikimedia.org/wikipedia/commons/e/e6/Windows_11_logo.svg');
+                background-size:contain;
+                background-position:center;
+                background-repeat:no-repeat;
+              "
+            />
+
+            <!-- MSN Games -->
+
+            <input
+              onclick="blank('https://msn.com/en-us/play');"
+              class="shortcut text-shortcut"
+              id="msn-games"
+              title="MSN Games"
+              type="button"
+              value="MSN"
+            />
+
+          </div>
+
+        </div>
+
+        <!-- ============================
+             LOWER FOOTER
+             ============================ -->
+
+        <div class="lower-footer">
+
+          <h1>
+
+            <a href="https://github.com/interstellarnetwork/interstellar">
+              GitHub
+            </a>
+
+            &#12539;
+
+            <a href="https://discord.gg/interstellar">
+              Discord
+            </a>
+
+            &#12539;
+
+            <a href="https://status.gointerstellar.app/">
+              Status
+            </a>
+
+          </h1>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ============================
+         EXISTING INTERSTELLAR SCRIPTS
+         ============================ -->
+
+    <script src="assets/scripts/index.js?v=2"></script>
+
+    <script src="./m/bundle.js"></script>
+
+    <script src="./m/config.js"></script>
+
+    <script
+      src="https://kit.fontawesome.com/1237c86ba0.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-WKJQ5QHQTJ"
+    ></script>
+
+    <script>
+      window.dataLayer =
+        window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+
+      gtag(
+        "js",
+        new Date()
+      );
+
+      gtag(
+        "config",
+        "G-WKJQ5QHQTJ"
+      );
+    </script>
+
+    <script src="/assets/scripts/global.js?v=3"></script>
+    <script src="/assets/scripts/settings.js?v=1"></script>
+
+    <!-- ============================
+         MONACO HTML MODE
+         ============================ -->
+
+    <script>
+      (() => {
+
+        const urlMode =
+          document.getElementById(
+            "url-mode"
+          );
+
+        const urlInput =
+          document.getElementById(
+            "is"
+          );
+
+        const editorContainer =
+          document.getElementById(
+            "html-editor-container"
+          );
+
+        const runButton =
+          document.getElementById(
+            "html-run"
+          );
+
+        let editor = null;
+
+        let monacoReady = null;
+
+        let switchingMode = false;
+
+        /*
+         * ============================
+         * LOAD MONACO
+         * ============================
+         */
+
+        function loadMonaco() {
+
+          if (monacoReady) {
+            return monacoReady;
+          }
+
+          monacoReady =
+            new Promise(
+              (resolve, reject) => {
+
+                if (window.monaco) {
+
+                  resolve(
+                    window.monaco
+                  );
+
+                  return;
+                }
+
+                const loader =
+                  document.createElement(
+                    "script"
+                  );
+
+                loader.src =
+                  "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js";
+
+                loader.onload =
+                  () => {
+
+                    window.require.config(
+                      {
+                        paths: {
+                          vs:
+                            "https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs"
+                        }
+                      }
+                    );
+
+                    window.require(
+                      [
+                        "vs/editor/editor.main"
+                      ],
+
+                      () => {
+
+                        resolve(
+                          window.monaco
+                        );
+
+                      },
+
+                      reject
+                    );
+
+                  };
+
+                loader.onerror =
+                  reject;
+
+                document.head.appendChild(
+                  loader
+                );
+
+              }
+            );
+
+          return monacoReady;
+        }
+
+        /*
+         * ============================
+         * SWITCH TO HTML MODE
+         * ============================
+         */
+
+        async function
+        switchToHtmlMode(
+          initialValue = "<"
+        ) {
+
+          if (switchingMode) {
+            return;
+          }
+
+          switchingMode = true;
+
+          urlMode.style.display =
+            "none";
+
+          editorContainer.style.display =
+            "block";
+
+          try {
+
+            const monaco =
+              await loadMonaco();
+
+            if (!editor) {
+
+              editor =
+                monaco.editor.create(
+                  document.getElementById(
+                    "html-editor"
+                  ),
+                  {
+
+                    value:
+                      initialValue,
+
+                    language:
+                      "html",
+
+                    theme:
+                      "vs-dark",
+
+                    automaticLayout:
+                      true,
+
+                    minimap: {
+                      enabled:
+                        false
+                    },
+
+                    fontSize:
+                      14,
+
+                    lineNumbers:
+                      "on",
+
+                    wordWrap:
+                      "on",
+
+                    scrollBeyondLastLine:
+                      true,
+
+                    scrollbar: {
+
+                      vertical:
+                        "auto",
+
+                      horizontal:
+                        "auto",
+
+                      verticalScrollbarSize:
+                        12,
+
+                      horizontalScrollbarSize:
+                        12
+
+                    },
+
+                    padding: {
+
+                      top:
+                        12,
+
+                      bottom:
+                        20
+
+                    }
+
+                  }
+                );
+
+              /*
+               * Empty editor returns
+               * to URL mode.
+               */
+
+              editor.onDidChangeModelContent(
+                () => {
+
+                  if (!editor) {
+                    return;
+                  }
+
+                  const value =
+                    editor.getValue();
+
+                  if (
+                    value.length ===
+                    0
+                  ) {
+
+                    switchToUrlMode();
+
+                  }
+
+                }
+              );
+
+            } else {
+
+              editor.setValue(
+                initialValue
+              );
+
+              editor.layout();
+
+            }
+
+            editor.focus();
+
+            editor.setPosition(
+              {
+                lineNumber:
+                  1,
+
+                column:
+                  initialValue.length +
+                  1
+              }
+            );
+
+          } catch (error) {
+
+            console.error(
+              "Failed to load Monaco:",
+              error
+            );
+
+            switchToUrlMode();
+
+            urlInput.value =
+              initialValue;
+
+            urlInput.focus();
+
+          } finally {
+
+            switchingMode =
+              false;
+
+          }
+
+        }
+
+        /*
+         * ============================
+         * SWITCH TO URL MODE
+         * ============================
+         */
+
+        function
+        switchToUrlMode() {
+
+          editorContainer.style.display =
+            "none";
+
+          urlMode.style.display =
+            "";
+
+          if (editor) {
+            editor.setValue("");
+          }
+
+          urlInput.value =
+            "";
+
+          urlInput.focus();
+
+        }
+
+        /*
+         * ============================
+         * DETECT <
+         * ============================
+         */
+
+        urlInput.addEventListener(
+          "input",
+          () => {
+
+            if (switchingMode) {
+              return;
+            }
+
+            const value =
+              urlInput.value;
+
+            if (
+              value.startsWith("<")
+            ) {
+
+              switchToHtmlMode(
+                value
+              );
+
+            }
+
+          }
+        );
+
+        /*
+         * ============================
+         * RUN HTML
+         * ============================
+         */
+
+        runButton.addEventListener(
+          "click",
+          () => {
+
+            if (!editor) {
+              return;
+            }
+
+            const html =
+              editor.getValue();
+
+            if (!html.trim()) {
+
+              switchToUrlMode();
+
+              return;
+            }
+
+            /*
+             * FIRST BLOB
+             */
+
+            const firstBlob =
+              new Blob(
+                [html],
+                {
+                  type:
+                    "text/html"
+                }
+              );
+
+            const firstBlobUrl =
+              URL.createObjectURL(
+                firstBlob
+              );
+
+            /*
+             * OPEN ABOUT:BLANK
+             */
+
+            const popup =
+              window.open(
+                "about:blank",
+                "_blank"
+              );
+
+            if (
+              !popup ||
+              popup.closed
+            ) {
+
+              URL.revokeObjectURL(
+                firstBlobUrl
+              );
+
+              alert(
+                "Please allow popups and redirects."
+              );
+
+              return;
+            }
+
+            const safeBlobUrl =
+              JSON.stringify(
+                firstBlobUrl
+              );
+
+            popup.document.open();
+
+            popup.document.write(`
+              <!doctype html>
+
+              <html>
+
+                <head>
+
+                  <meta charset="UTF-8">
+
+                  <title>
+                    Loading...
+                  </title>
+
+                </head>
+
+                <body>
+
+                  <script>
+
+                    (async () => {
+
+                      const oldBlobUrl =
+                        ${safeBlobUrl};
+
+                      try {
+
+                        /*
+                         * Fetch the original Blob.
+                         */
+
+                        const response =
+                          await fetch(
+                            oldBlobUrl
+                          );
+
+                        const oldBlobContent =
+                          await response.text();
+
+                        /*
+                         * Create the new Blob.
+                         */
+
+                        const newBlob =
+                          new Blob(
+                            [
+                              oldBlobContent
+                            ],
+                            {
+                              type:
+                                "text/html"
+                            }
+                          );
+
+                        const newBlobUrl =
+                          URL.createObjectURL(
+                            newBlob
+                          );
+
+                        /*
+                         * Replace about:blank
+                         * with the new Blob.
+                         */
+
+                        window.location.replace(
+                          newBlobUrl
+                        );
+
+                      } catch (
+                        error
+                      ) {
+
+                        document.body.innerHTML =
+                          "<pre>" +
+                          String(
+                            error
+                          )
+                            .replace(
+                              /&/g,
+                              "&amp;"
+                            )
+                            .replace(
+                              /</g,
+                              "&lt;"
+                            )
+                            .replace(
+                              />/g,
+                              "&gt;"
+                            ) +
+                          "</pre>";
+
+                      }
+
+                    })();
+
+                  <\/script>
+
+                </body>
+
+              </html>
+            `);
+
+            popup.document.close();
+
+            /*
+             * Keep the first Blob alive long
+             * enough for the about:blank page
+             * to fetch it.
+             */
+
+            setTimeout(
+              () => {
+
+                URL.revokeObjectURL(
+                  firstBlobUrl
+                );
+
+              },
+              30000
+            );
+
+          }
+        );
+
+      })();
+    </script>
+
+  </body>
+</html>

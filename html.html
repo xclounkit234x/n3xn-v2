@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <title>HTML</title>
+
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #frame {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+<script>
+(() => {
+  const iframe = document.createElement('iframe')
+
+  /*
+   * Required initial source.
+   */
+  iframe.src = 'xd://67'
+
+  iframe.setAttribute(
+    'allow',
+    [
+      'accelerometer',
+      'autoplay',
+      'camera',
+      'clipboard-read',
+      'clipboard-write',
+      'display-capture',
+      'encrypted-media',
+      'fullscreen',
+      'geolocation',
+      'gyroscope',
+      'microphone',
+      'payment',
+      'picture-in-picture',
+      'speaker-selection',
+      'usb',
+      'web-share',
+      'xr-spatial-tracking'
+    ].join('; ')
+  )
+
+  iframe.setAttribute('allowfullscreen', '')
+  iframe.setAttribute('webkitallowfullscreen', '')
+  iframe.setAttribute('mozallowfullscreen', '')
+  iframe.setAttribute('referrerpolicy', 'no-referrer')
+
+  iframe.id = 'frame'
+
+  document.body.appendChild(iframe)
+
+  const marker = '/html/'
+  const pathname = location.pathname
+  const markerIndex = pathname.indexOf(marker)
+
+  if (markerIndex === -1) {
+    return
+  }
+
+  /*
+   * Everything after /html/.
+   */
+  let payload =
+    pathname.slice(markerIndex + marker.length)
+
+  /*
+   * Find the encoding delimiter.
+   *
+   * Expected:
+   *
+   * /html/plain/<html>
+   * /html/uri/<encoded-html>
+   * /html/base64/<base64>
+   */
+  const slash = payload.indexOf('/')
+
+  if (slash === -1) {
+    showError('Missing encoding or HTML payload.')
+    return
+  }
+
+  const encoding =
+    payload.slice(0, slash).toLowerCase()
+
+  payload =
+    payload.slice(slash + 1)
+
+  /*
+   * The query string belongs to the HTML payload.
+   *
+   * Example:
+   *
+   * /html/plain/<h1>Hello?</h1>
+   *
+   * becomes:
+   *
+   * pathname = /html/plain/<h1>Hello>
+   * search   = ?</h1>
+   *
+   * Reassemble it.
+   */
+  if (location.search) {
+    payload += location.search
+  }
+
+  /*
+   * A # normally becomes a browser fragment and is NOT sent
+   * to the server, so it is recovered here.
+   */
+  if (location.hash) {
+    payload += location.hash
+  }
+
+  let html = payload
+
+  /*
+   * URI encoding.
+   */
+  if (encoding === 'uri' || encoding === 'url') {
+    for (let i = 0; i < 3; i++) {
+      try {
+        const decoded =
+          decodeURIComponent(html)
+
+        if (decoded === html) {
+          break
+        }
+
+        html = decoded
+      } catch {
+        break
+      }
+    }
+  }
+
+  /*
+   * Base64.
+   */
+  else if (encoding === 'base64' || encoding === 'b64') {
+    try {
+      let value = html
+        .replace(/-/g, '+')
+        .replace(/_/g, '/')
+
+      while (value.length % 4 !== 0) {
+        value += '='
+      }
+
+      const binary = atob(value)
+
+      const bytes = new Uint8Array(
+        binary.length
+      )
+
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] =
+          binary.charCodeAt(i)
+      }
+
+      html =
+        new TextDecoder('utf-8').decode(bytes)
+    } catch (error) {
+      showError(
+        'Invalid Base64 HTML: ' +
+        error.message
+      )
+
+      return
+    }
+  }
+
+  /*
+   * plain = don't decode anything.
+   */
+  else if (encoding !== 'plain') {
+    showError(
+      'Unknown encoding. Use plain, uri, or base64.'
+    )
+
+    return
+  }
+
+  /*
+   * We cannot safely document.write into xd://67 from an HTTPS
+   * page if the browser treats it as another origin.
+   *
+   * srcdoc is the browser-supported way to create the requested
+   * HTML document inside the fullscreen iframe.
+   */
+  iframe.srcdoc = html
+
+  document.title = 'HTML'
+
+  function showError(message) {
+    document.body.innerHTML = ''
+
+    const error = document.createElement('pre')
+
+    error.style.cssText = `
+      box-sizing: border-box;
+      margin: 0;
+      padding: 20px;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      color: white;
+      background: #000;
+      font-family: monospace;
+      white-space: pre-wrap;
+    `
+
+    error.textContent = message
+
+    document.body.appendChild(error)
+  }
+})()
+</script>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>​</title>
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnLz4=">
+  <script src="/m/bundle.js"></script>
+<script src="/m/config.js"></script>
+
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #frame {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
+</head>
+
+<body>
+<script>
+(() => {
+  const iframe = document.createElement("iframe");
+
+  iframe.id = "frame";
+  iframe.src = "xd://67";
+
+  iframe.setAttribute("allow", [
+    "accelerometer",
+    "autoplay",
+    "camera",
+    "clipboard-read",
+    "clipboard-write",
+    "display-capture",
+    "encrypted-media",
+    "fullscreen",
+    "geolocation",
+    "gyroscope",
+    "microphone",
+    "payment",
+    "picture-in-picture",
+    "speaker-selection",
+    "usb",
+    "web-share",
+    "xr-spatial-tracking"
+  ].join("; "));
+
+  iframe.setAttribute("allowfullscreen", "");
+  iframe.setAttribute("webkitallowfullscreen", "");
+  iframe.setAttribute("mozallowfullscreen", "");
+
+  iframe.setAttribute("referrerpolicy", "no-referrer");
+
+  document.body.appendChild(iframe);
+
+  // Everything after /url/ is the target.
+  const marker = "/url/";
+  const path = location.pathname;
+  const index = path.indexOf(marker);
+
+  let target = index === -1
+    ? ""
+    : path.slice(index + marker.length);
+
+  // Preserve query string and fragment.
+  if (location.search)
+    target += location.search;
+
+  if (location.hash)
+    target += location.hash;
+
+  // Decode URI-encoded targets.
+  try {
+    target = decodeURIComponent(target);
+  } catch (_) {}
+
+  // Make bare domains usable.
+  if (
+    target &&
+    !/^[a-z][a-z0-9+.-]*:\/\//i.test(target)
+  ) {
+    target = "https://" + target;
+  }
+
+  function loadUV() {
+    if (
+      typeof __uv$config === "undefined" ||
+      typeof __uv$config.encodeUrl !== "function"
+    ) {
+      document.body.innerHTML =
+        "<pre style='color:white;padding:20px'>Ultraviolet config could not be loaded.</pre>";
+      return;
+    }
+
+    const proxied = __uv$config.prefix + __uv$config.encodeUrl(target);
+
+    /*
+     * xd://67 may be inaccessible to contentDocument in some browsers
+     * because custom URL schemes can create a different security origin.
+     */
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+      doc.open();
+      doc.write(`
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    html,body {
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+    }
+    iframe {
+      display:block;
+      width:100%;
+      height:100%;
+      border:0;
+    }
+  </style>
+</head>
+<body>
+  <iframe
+    src="${proxied.replace(/"/g, "&quot;")}"
+    allow="accelerometer; autoplay; camera; clipboard-read; clipboard-write; display-capture; encrypted-media; fullscreen; geolocation; gyroscope; microphone; payment; picture-in-picture; speaker-selection; usb; web-share; xr-spatial-tracking"
+    allowfullscreen
+    referrerpolicy="no-referrer">
+  </iframe>
+</body>
+</html>
+      `);
+      doc.close();
+    } catch (e) {
+      /*
+       * If xd://67 is cross-origin and the browser prevents document.write,
+       * fall back to navigating the outer iframe directly.
+       */
+      iframe.src = proxied;
+    }
+  }
+
+  iframe.addEventListener("load", loadUV, { once: true });
+
+  // Some custom schemes don't produce a normal load event.
+  setTimeout(loadUV, 1000);
+})();
+</script>
+</body>
+</html>
